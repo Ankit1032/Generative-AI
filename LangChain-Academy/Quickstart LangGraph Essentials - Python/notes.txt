@@ -1,0 +1,81 @@
+======== Lessons ==========
+
+This repository contains notebooks for Labs 1-5, and an additional notebook showcasing an end-to-end email agent. These labs cover the foundations of LangGraph that will enable you to build any workflow or agent.
+
+L1-5.ipynb - LangGraph Essentials
+
+You will use all the components of LangGraph
+State and Nodes
+Edges
+Parallel
+Conditional
+Memory
+Interrupts/ Human-In-The-Loop
+EmailAgent.ipynb - Build a Workflow
+
+Learn to implement structured workflow to process customer emails. This notebook utilizes all of the building blocks from the first notebook in an example application:
+
+Task tracking with status management (pending/in_progress/completed)
+================================
+
+Course Slides Link : https://academy.langchain.com/courses/take/langgraph-essentials-python/pdfs/69449571-course-slides
+
+LLM has 3 problems that are supoosed to be looked into:
+	1. Latency
+	2. Reliability
+	3. Non-Deterministic nature of LLM response
+	
+Here's how langgraph addresses these:
+	1. Latency : LLMs have very long latencies, sometimes in seconds versus milliseconds. LangGraph can't make the models faster, but we can improve things in 2 ways.
+		a. LangGraph supports parallel execution of tasks. If you have N tasks, and run them in parallel, you can reduce latency by a factor of N. 
+		b. Streaming : Often in interactive applications, the metric you are most concerned with, is time to first return token. So LangGraph support streaming, getting tokens to the user as soon as they are available
+	
+	2. Reliability : Long running agents can fail, which is expensive and time-consuming. Failure of a process that has run for a few milliseconds is not a big problem, but when an agent that has been running for minutes or even longer fails, it is expensive and time consuming to rerun it.
+		a. Checkpointing : To address potential failure, LangGraph includes checkpointing.
+			i. LangGraph saves the state of the application at each step. 
+			ii. A restarted application can then resume exactly where it left off. Checkpointing and maintaining states are prominent themes in LangGraph.
+			
+	3. Non-Deterministic nature of LLM response : LLMs have variable responses. LLM produce different results each time they are called. Further, different models produce different results, and models are replaced over time. For some applications, this will necessitate human approvals, and in all cases, rigorous evaluations and testing.
+		i. HITL : LangGraph implements a human in the loop interface that suspends the agent to await human input.
+		ii. It also supports tracing and evaluations using LangSmith.
+		
+LangGraph has several components:
+	a. It has an underlying runtime on top of which there are two user SDKs.
+		i. One that we will focus on is StateGraph - Support for LLMs, tools and many other components is supplied by the LangChain library. It can be hosted by LangSmith Deployment. Studio and LangSmith provide useful debugging, evaluation and testing capabilities.
+	b. Functional SDKs
+	c. PregelLoop - Message Passing Runtime
+	
+============================== Module 1 =================================================
+
+==== Lesson 1 : Nodes ====
+
+1. LangGraph is very flexible like a programming language.
+
+2. Key Components of LangGraph:
+	a. State : State is the data that flows through the graph.
+	b. Node : Nodes are simply functions that operate on the data.
+	c. Edges : Edges provide control flow
+		i. These edges can be static or conditional.
+		ii. They can run in parallel or in series.
+	d. Checkpointing Memory : State can be persisted with checkpointing
+	e. Human in the Loop : Control flow can be interrupted and resumed to allow for neat things like Human in the loop.
+	
+3. StateGraph, has a state and a graph. 
+	a. State is simply data as we just explored. 
+	b. It is supplied to the graph, is updated by the graph and returned to the user.
+	c. The graph themselves are stateless.
+	d. When definining a graph, you first define the state that the graph will operate on.
+	e. This state is shared by all nodes in the graph
+	f. State is simply a Python Data Scructure: in our case, we will use a typed dictionary with a single field with contains list of strings.
+		>>class State(TypedDict):
+			nlist : List[str]
+	g. When graph is invoked, state is initiated. During execution of the graph, the LangGrapgh runtime will select a node to execute, and then it will supply it with the current state, it will run the nose, and then finally it will update the state with the results from the node.
+	h. Node is just a function: You can see the primary arguement is state.
+		def node_a(state: State):
+			return ({"nlist":[note]})
+			
+	i. State can be persisted across time and in particular accross failure of nodes. So, if a node were to fail during execution, it could be restarted, the state could be restored, and the function could be run again from the beginning.
+	
+	
+
+	
