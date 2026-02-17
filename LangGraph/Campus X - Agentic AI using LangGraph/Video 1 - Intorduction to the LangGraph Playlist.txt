@@ -1,0 +1,12 @@
+======== Vision ========
+1. Simple to understand playlist for Agentic AI
+2. Mastering LangGraph Fundamentals
+3. Transferable fundamentals for any framework
+
+======== Curriculum ========
+Module 1 : Foundation of Agentic AI
+Module 2 : LangGraph fundamentals
+Module 3 : Advanced LangGraph
+Module 4 : AI Agents Implimentation (ReAct, Reflection Agent, Self Ask Help, Planning, Multi-Agents System)
+Module 5 : Agentic RAG Application (CRAG, Self-RAG)
+Module 6: Productionization (UI, Dubbibg, Observability, LangSmith, Deployment)
