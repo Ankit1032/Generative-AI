@@ -1,0 +1,50 @@
+1. What is Generative AI
+	a. Generative AI refers to a class of artificial intelligence models that can create new content — such as text, images, audio, code, or video — that resembles human-created data.
+	
+	b. LLMs based apps like Chat GPT, Gemini etc..
+	
+	c. Diffusion Models for Image where you provide a prompt and it generates a model for you.\
+	
+	d. Code geenration LLMs like CodeLLama
+	
+	e. TTS (Text-to-Speech) Models like ElevenLabs
+	
+	f. Video Gen Models like SORA
+	
+2. Gen AI vs Traditional AI (ML,DL,etc)
+	a. Traditional Al is about finding patterns in data and giving	predictions.
+	
+	b. Generative Al is about learning the distribution of data so that it can generate a new sample from it.
+	
+	c. The best part of Generative Al is that it can mimic humans.
+	
+3. Application Areas
+	a. Creative and Business Writing
+	b. Software Development (Auto Completion Code)
+	c. Customer Support
+	d. Education
+	e. Designing
+	
+4. LLM Based CHatbot - Goal - To hire a backend engineer!
+	a. Creating a JD
+	b. Posting the JD to a job platform
+	c. Shortlisting
+	d. Interviewing
+	e. Rolling an offer letter
+	f. Onboarding	
+	
+5. Problems with the above approach:
+	a. Reactive - The LLM only responds when user prompts whereas it would be helpful it it is proactive
+	b. No memory - User will have to pass the JD as context to LLM all the time for answers as it has no memory
+	c. Generic Advice - LLM gives very generic advices but not based on my specific needs on my company's role
+	d. Can't take actions - It can't send a mail to the interviewee or post job on job protals
+	e. Can't Adapt - It can't strategies to attract more candidates to apply to your job
+	
+6. To solve the above problems:
+	a. Reactive(Autonomous) : Mention the steps it needs to take starting from creating JD to hiring to welcoming candidate [Agentic AI Chatbot]
+	b. No Memory : [Agentic AI] + Add Memory
+	c. Generic Advice : Add your company data
+	d. Can't take actions : Add tools like LinkedIn API, Resume Parser Tool, Mail API, etc. [Tool Augmented Chatbot]
+	e. Can't Adapt : [Agentic AI]
+	
+7. Generative AI is a capability whereas Agentic AI is a behaviour
