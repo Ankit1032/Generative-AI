@@ -1,0 +1,172 @@
+1. What is Agentic AI?
+	a. Agentic AI is a type of AI that can take up a task or goal from a user and then work toward completing it on its own, with minimal human guidance.
+	b. It plans, tahes action, adapts to changes, and seeks help only when necessary.
+	
+2. [We will take the Agentic AI chatbot example in Video 2]
+	a. Goal for Agentic AI Chatbot - Hire a Remote backend Engineer (2-4 years of experience)
+		Agentic AI will develop a plan:
+		i. Draft JD + post on best platforms
+		ii. Monitor pipeline + adjust strategy if needed
+		iii. Screen candidates -i schedule interviews
+		iv. Draft + send offer start onboarding
+		
+	b. Now this Agentic AI Bot will try to achieve each task autonomously without any human intervention
+
+3. Key Characterictics of Agentic AI (Below are the characteristics through which you can understand if a given system/app/chatbot is Agentic)
+	a. Autonomous
+	b. Goal Oriented
+	c. Planning
+	d. Context Awareness
+	e. Adaptability
+	f. Reasoning
+	
+4. Autonomous
+	a. Autonomy refers to the AI system's ability to make decisions and take actions on its own to achieve a given goal, without needing step-by-step human instructions.
+	b. Our AI recruiter is autonomous
+	c. It's proactive (e.g it posted job role on its own to LinkedIn and was monitoring on its own as well, and if it sees that candidates are not applying much then it will also understand that there must be some problem with the JD or with apply link, etc)
+	
+	d. Autonomy in multiple facets
+		i. Execution : Agentic AI planning and executing multiple steps
+		ii. Decision making : E.g Screening the resume of the candidates, finalizing how much candidates to select and the parameters on which to select is planned by our Agentic AI
+		iii. Tool usage : Mail API, LinkedIn API, Calendar API, etc
+		
+	e. Autonomy can be controlled:
+		i. Permission Scope - Limit what tools or actions the agent can perform independently. (E.g. Can screen candidates, but needs approval before rejecting anyone.)
+		ii. Human-in-the-Loop (HITL) - Insert checkpoints where human approval is required before continuing. (E.g. Can I post this JD)
+		iii. Override Controls - Allow users to stop, pause, or change the agent's behaviour at any time. (E.g. pause interviewing/screening command to halt resume processing.)
+		iv. Guardrails / Policies - Define hard rules or ethical boundaries the agent must follow. (E.g. Never schedule interviews on weekends)
+
+	f. Autonomy can be dangerous
+		i. The application autonomously sends out job offers with incorrect salaries or terms.
+		ii. The application shortlists candidates by age or nationality, violating anti-discrimination laws.
+		iii. The applications spending extra on LinkedIn ads.
+		
+5. Goal Oriented:
+	Definition: Being goal-oriented means that the Al system operates with a persistent objective in mind and continuously directs its actions to achieve that objective, rather than just responding to isolated prompts.
+	
+	a. Goals acts as a compass for Autonomy [Functioning independently but directed towards the given goal]
+	b. Goals can come with constraints [Constraints like hire remote role, or only spend 100$ in marketing or hire only from India]
+	c. Goals are stored in core memory
+	
+		{
+			"main_goal "Hire a backend engineer",
+			"constraints":{
+				"experience": "2-4 years"
+				"remote" : true,
+				"stack": ["Python", "Django", "Cloud"]
+			},
+			"status": "active",
+			"created at": "2025-06-27",
+			"progress": {
+				"JD created": true,
+				"posted_on": ["LinkedIn", "AngelList"],
+				"applications_received": 8,
+				"interviews scheduled": 2
+			}
+		}
+
+	d. Goals can be altered [E.g. During the process after few days, you decided to stop hiring for backend engg. and hire a freelancer]
+	
+6. Planning
+	Definition: Planning is the agent's ability to break down a high-level goal into a structured sequence of actions or subgoals and decide the best path to achieve the desired outcome.
+	
+	a. Agentic AI does 2 things : Planning and Execution and this 2 steps runs iteratively in loops
+	
+	b. In Agentic systems, Planning is done in 3 steps:
+
+		Step 1: Generating multiple candidate plans (Multiple Plans are called candidate plans)
+			• Plan A: Post JD on LinkedIn, GitHub Jobs, AngelList
+			• Plan B: Use internal referrals and hiring agencies
+		
+		Step 2: Evaluate each plan (Agent will decide which plan to go ahead with based on the below criteria)
+			• Efficiency (Which is faster?)
+			• Tool Availability (Which tools are available)
+			• Cost (Does it require premium tools?)
+			• Risk (Will it fail if we get no applicants?)
+			• Alignment with constraints (remote-only? budget?)
+
+		Step 3: Select the best plan with the help of:
+			• Human-in-the-loop input (e.g., "Which of these options do you prefer?" )
+			• A pre-programmed policy (e.g., "Favor low-cost channels first")
+			
+7. Reasoning
+	Definition: Reasoning is the cognitive process through which an agentic ai system interprets information, draws conclusions, and makes decisions — both while planning ahead and while executing actions in real time.
+	
+	a. Reasoning During Planning:
+		1. Goal decomposition - Break down abstract goals into concrete steps
+		2. Tool selection - Decide which tools will be needed for which steps
+		3. Resource estimation - Estimate time, dependencies, risks
+		
+	b. Reasoning During Execution:
+		1. Decision-making - Choosing between options (3 candidates match —Y schedule 2 best, reject 1)
+		2. Error handling - Interpreting tool/APl failures and recovering
+		3. HITL handling - Knowing when to pause and ask for help (Unsure about salary range)
+		
+8. Adaptability
+	
+	a. Adaptability is the agent's ability to modify its plans, strategies, or actions in response to unexpected conditions — all while staying aligned with the goal.
+	
+	b. When Agentic AI might have to show its adaptability:
+		i. Failure of Calendar API so it can't find out when you would be free to take interview, so it has to adapt and text/mail you directly that when you would be up for interview
+		ii. External feedback (Less no of applications)
+		iii. Changing goals (Hiring a freelancer)
+		
+	c. For e.g. if the candidates are not applying for the job role, the agent needs to understand, adapt to change the JD.
+	
+		
+9. Context Awareness
+	Definition: Context awareness is the agent's ability to understand, retain, and utilize relevant information from the ongoing task, past interactions, user preferences, and environmental cues to make better decisions throughout a multi-step process.
+
+	1. Types of context
+		a. The original goal
+		b. Progress till now + Interaction history (Job description was finalized and posted to LinkedIn & GitHub Jobs)
+		c. Environment state (Number of applicants so far = 8 or LinkedIn promotion ends in 2 days)
+		d. Tool responses (Resume parser -5 "Candidate B has 3 years Django + AWS experience or Calendar API "No conflicts at 2 PM Wednesday)
+		e. User specific preferences (Prefers remote-first candidates or Likes receiving interview questions in a Google Doc)
+		f. Policy or Guardrails(Do not send offer without explicit user approval or Never use platforms that require paid ads unless approved)
+
+	2. Context awareness is implemented through memory
+	3. Short term memory [Stores memory related to current session] [For e.g. Tool responses are shot terms memory whereas the guardrails has to be long term memory]
+	4. Long term memory
+	
+10. Components of Agentic AI:
+	a. Brain
+		i. Goal Interpretation : Understands user instructions and translates them into objectives.
+		ii. Planning : Breaks down high-level goals into subgoals and ordered steps.
+		iii. Reasoning : Makes decisions, resolves ambiguity, and evaluates trade-offs.
+		iv. Tool Selection : Chooses which tool(s) to use at a given step.
+		v. Communication : Generates natural language outputs for humans or other agents.
+
+	b. Orchestrator [LangGraph, CrewAI, AutoGen - This libraries/frameworks are used to build orchestrator]
+		i. Task Sequencing : Determines the order of actions (step 1 --> step 2 --> ..)
+		ii. Conditional Routing : Directs flow based on context (e.g., if failure, retry or escalate).
+		iii. Retry Logic : Handles failed tool calls or reasoning attempts with backoff.
+		iv. Looping & Iteration : Repeats steps (e.g., keep checking job apps until IO are received).
+		v. Delegation : Decides whether to hand off work to tools, LLM, or human.
+		
+	c. Tools
+		i. External Actions : Perform API calls (e.g., post a job, send an email, trigger onboarding).
+		ii. Knowledge Base Access : Retrieve factual or domain-specific information using RAG or search tools to ground responses.
+
+	d. Memory
+		i. Short-Term Memory : Maintains the active session's context — recent user messages, tool calls, and immediate decisions.
+		ii. Long-Term Memory : Persists high-level goals, past interactions, user preferences, and decisions across sessions.
+		iii. State Tracking : Monitors progress: what's completed, what's pending (e.g., "JD posted", "Offer sent").
+		
+	e. Supervisor [Agent + Human (HITL)]
+		i. Approval Requests (HITL) : Agent checks with human before high-risk actions (e.g„ sending offers).
+		ii. Guardrails Enforcement : Blocks unsafe or non-compliant behavior.
+		iii. Edge Case Escalation : Alerts humans when uncertainty/conflict arises.
+
+
+
+
+
+
+
+
+
+
+
+
+
