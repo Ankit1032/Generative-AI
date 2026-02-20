@@ -1,0 +1,323 @@
+1. LangChain Recap
+	a. What is LangChain
+		i. LangChain is an open-source library designed to simplify the process of building LLM based applications.
+		ii. It provides.modular building blocks that let you create sophisticated LLM-based workflows with ease.
+		
+	b. LangChain consists of multiple components
+		i. Model components gives use a unified interface to interact with various LLM providers
+		ii. Prompts component helps you engineer prompts
+		iii. Retrievers component helps you fetch relevant documents from a vector store
+		
+	c. But the biggest offering of LangChain is Chains.
+	
+	d. What can you do with LangChain
+		a. Simple conversational workflows like Chatbots, Text Summarizers
+		b. Multistep workflows [Prompt --> LLM --> Prompt --> LLM ....]
+		c. RAG applications
+		d. Basic level agents
+		
+2. Automated Hiring Workflow for Hiring Agent [This is an workflow, not an Agentic AI]
+	LINK: https://www.anthropic.com/engineering/building-effective-agents
+	
+	- Workflows are systems where the LLMs and tools are orchestrated through predefined code paths.
+	- Agents, on the other hand, are systems where LLMs dynamically direct their own processes and tool usage, maintaining control over how they accomplish tasks.
+	
+	- As we have already built a automated diagram for workflow, hence we cant call it an agent as it is not autonomous.
+	
+		START
+		  │
+		  ▼
+		Hiring Request
+		  │
+		  ▼
+		Create JD <--------------			
+		  │						│
+		  ▼						│
+		Is JD Approved?[HITL]	│
+		  ├── No ────────────────
+		  │                                  
+		  └── Yes ─► Post JD[Tools: LinkedIn API]                 
+						│                    
+						▼                    
+					 Wait 7 Days             
+						│                    
+						▼                    
+				  Monitor Applications <-----
+						│					│
+						▼					│
+			 Enough Applicants?				│
+				├── No ─► Modify ID			│
+				│            │				│
+				│            ▼				│
+				│        Wait 48 Hours		│
+				│            │				│
+				│            └─────────────── 
+				│
+				└── Yes ─► Shortlist [Based on some score threshold]
+								│
+								▼
+							Schedule [Tools: Calendar API mail]
+								│
+								▼
+						Conduct Interview
+								│
+								▼
+							 Selected?
+						├── No ─► Regret Email
+						│
+						└── Yes ─► Send Offer Letter <-------------------
+										   │							│
+										   ▼							│
+									   Accepted?						│
+								 ├── Yes ─► Onboarding ─► END			│
+								 │										│
+								 └── No ─► Renegotiate ─────────────────│
+
+
+
+	- Basic level workflows can be done using LangChain but the above workflow is quite complex and might be difficult to achieve in LangChain.
+	
+3. CHALLENGE #1 - Control Flow Complexity
+	a. Chains in LangChain is Linear whereas the workflow we have designed is highly not linear
+	b. It is not linear because:
+		i. Conditional Branches [Enough Applicants?, Selected?]
+		ii. Circular Loops [If JD is not approved , go back to "Create JD"]
+		iii. Jumps ["Renegotiate" jumps to "Send Offer Letter"]
+	c. And this is the reason it is so difficult to implement this in LangChain
+	
+	d. We will code partial workflow in LangChain and see how it works
+		START
+		  │
+		  ▼
+		Hiring Request
+		  │
+		  ▼
+		Create JD <--------------			
+		  │						│
+		  ▼						│
+		Is JD Approved?[HITL]	│
+		  ├── No ────────────────
+		  │                                  
+		  └── Yes ─► Post JD[Tools: LinkedIn API]   
+		  
+	e. LangChain Code
+		#Step 1:
+			hiring_prompt = "We need to hire a Software Engineer for our backend team."
+		
+		#Step 2:
+			llm = ChatOpenAI(model="gpt-4", temperature=0)
+			jd_prompt = ChatPrompttemplate.from_template(
+				"Create a job description based on the hiring request:\n\n{request}
+			)
+			jd_chain = jd_prompt | llm | StroutputParser()
+
+		#Step 3:
+			def approve_jd(jd: str) -> bool:
+				#Simulate approval logic
+				return "Approved"
+			
+		# Step 4: Post JD function
+			def post_jd(jd: str):
+				print("JD Approved and Posted:\n")
+			
+		#Step 5: Loop until JD is approved
+			approved = False
+			jd_output = None
+			
+			while not approved :
+				Jd_output = jd_chain.invoke({ "request" : hiring_prompt})
+				print(jd_output)
+				
+				approved = approve_jd(jd_output)
+				
+				if not approved:
+					print("JD not approved. Regenerating.. )
+					
+			# Final Step
+			if approved:
+				post_jd(jd_output)
+		
+		a. You see in step 5, you are writing python custom code as LangChain doesn't have the ability to provide you with loops. 
+		b. Whenever you come out of the library to stitch the code, it is called Glue Code. The lesser the glue code, the better.
+		c. If we implement the whole workflow using LangChain, we will have way too many Glue Code in our code which will not be maintanable, difficult to debug.
+		
+		d. In LangGraph, you represent the whole workflow as graph. Every task will be represented as node. For example Hiring Request, Creating JD, etc. Edges are control flow which are used to connect the nodes.
+		
+		f. Code to build the same partial workflow using LangGraph:
+			#Step 1 : Build Nodes
+				graph.add_node("Hiring Request", hiring_request)
+				graph.add_node("CreateJD", create_jd)
+				graph.add_node("CheckApproval", check_approval)
+				graph.add_node("PostJD", post_jd)
+				
+				# These nodes(hiring_request, create_jd, check_approval, post_jd) are python function
+				
+			#Step 2 : Before step 1, we need to implement the Node Functions
+				def hiring_request(_: JDState) -> JDState:
+					return {"prompt": "We need to hire a Software Engineer for our backend team."}
+					
+				llm = ChatOpenAI(model="gpt-4", temperature=0)
+				
+				def create_jd(state: JDState) -> JDState:
+					prompt = state["prompt]
+					response = llm.invoke(f"Create a job description for this:{prompt}")
+					return {**state, "jd":response.content}
+					
+				def check_approval(state: JDState) -> JDState:
+					jd_text = state["jd"]
+					approved = "engineer" in jd_text.lower() #dummy logic
+					return {**state, "approved": approved}
+					
+				def approval_router(state: JDState) -> Literal["approved", "not_approved"]:
+					return "approved" if state["approved"] else "not_approved"
+					
+				def post_jd(state: JDState) -> JDState:
+					print("\n Final Approved JD: \n")
+					print(state["jd"])
+					return state
+					
+			#Step 3: Draw Edges
+				graph.add_edges("HiringRequest", "CreateJD")
+				graph.add_edge("CreateJD", "CheckApproval")
+				
+				graph.add_conditional_edges(
+					"CheckApproval",
+					approval_router,
+					{
+						"approved":"PostJD",
+						"not_approved": "CreateJD" #Loop Back
+					}
+				)
+				
+				graph.add_edge("PostJD", END)
+				
+		g. Here you see, we don't have to write any glue code, meaning LangGraph has inbuilt features to create conditional branches, loops and jumps.
+					
+			
+4. CHALLENGE #2 - Handling State
+
+	state = {
+		"goal":"Hire a backend software engineer",
+		"jd":"",
+		"jd_approved": False,
+		"jd_posted: False,
+		"min_applicants: 5,
+		"num_applications": 0,
+		
+		"shortlisted candidates":{
+			# "candidate_id": {"name":..., "score":..., "status":...}
+		},
+		
+		"interview_questions": [],
+		"offer_status": {
+			"sent": False,
+			"accepted": False,
+			"renegotiated": False
+		},
+		
+		"onboarding_status": {
+			"completed": False,
+			"start_date": None,
+			"employee_id": None
+		}
+	}
+	
+	a. Overtime the datapoints keep evolving. For e.g. JD evolves if not approved, or when the prompt mentions the kind of hiring we are doing, etc.
+	
+	b. The above JSON contains all the current datapoints which is called State(current state). The workflow can only function with help of state.
+	
+	c. Its important to track the state properly which is quite difficult to handle in LangChain.
+	
+	d. The data in state exists in Key-Value pair but LangChain doesn't give you any option to store and track this key-value pair. LangChain only have conversational memory feature but no mechanism to store the state or track it. Hence we need to track manually if we use LangChain for this workflow by making a dictionary and manually updating it.
+	
+	e. How is tis handled in LangGraph:
+		- The execution/operations happens in LangGraph around state is called Stateful. When you create a graph, you also create a state object which can be made using pydantic or TypedDict, basically it is a dictionary.
+		
+		- This dictionary can be accessible by every node in the graph (It can read and update the state as it is mutable)
+		
+		- In the node function code, you will see it gets a state(through function arguement) and it outputs a state (returns a state object). So node gets a state and outputs a state and the state can get updated by the node.
+		
+5. CHALLENGE #3 : Event Driven Execution
+	a. Workflow can be executed in 2 ways: 
+		i. Sequential ( LLM --> Prompt --> LLM --> Prompt --> Output]
+		
+		ii. Event-Driven (Waits for External Trigger to resume workflow like HITL) (For e.g. "Post JD" node happens and then it waits for 7 days and then performs "Monitor Application".
+		
+		iii. LangChain is built for Sequential Execution only, not Event-Driven Execution.
+		
+		iv. For building this event-driven workflow ("Wait 7 days"), you need to write python script manually for the system to wait 7 days for monitoring application.
+		
+		v. Whereas LangGraph provides you Event-Driven execution
+			- After you reach "Post JD", you can store the state using checkpointer/DB and then it waits for external trigger, once triggered then it resumes with the stored state.
+			
+6. CHALLENGE #4 - Fault Tolerance
+	a. Definition: If a system faces an error/bug/issue, is it able to recover from that, and this is called fault tolerance. Fault TOlerance is important where the process is long running.
+	
+	b. 2 types of fault:
+		i. Small (LinkedIn API stopped working when you tired to "Post JD")
+		ii. Big (The whole workflow code is not getting executed as your code is deployed in server AWS and it is down)
+		
+	c. We should have a system in-place which can help you recover from the faults.
+	
+	d. LangChain doesn't have fault tolerance meaning if you created a chain and the 3rd step failed, you need to restart your chain execution. LangChain assumes its chains are short lived so once each step of chain is executed, it gets erased.
+	
+	e. LangGraph has built in fault tolerance.
+		i. Small level fault: If a issue exists, you can hold on/pause for sometime and retry. This is called retry logic. for e.g. if linkedin api is down, it will wait for sometime and then try to post the jd again.
+		
+		ii. Big level fault: LangGraph has a concept recovery. Lets say your server failed when you were executing Nth node. Once server is up, you can continue the execution from the very same Nth node (It is done using checkpointer). Hence the execution is stateful in LangGraph whereas it is stateless in LangChain.
+		
+		iii. As soon as the sevrer goes down, LangGraph takes a snapshot fo the state a sstores it either in-memory or in a persistence layer(DB)
+		
+7. CHALLENGE #5 - Human in the loop
+	a. Wehenevr we create a autonomous workflow where the agent takes all the decision, you would want a human in the loop for some approvals instead of letting the agent approve each and everything. For example, you can add HITL for approval of posting JD over LinkedIn.
+	
+	b. In LangChain, there is no default mechanism where the workflow is paused for external trigger or HITL. So if you need approval from your manager and it the manager usually takles 24hours to responds , then you will have to keep the workflow active for 24hour without pausing.
+	
+	c. But adding HITL is possible in LangGraph.
+		- Persistent Execution State: LangGraph allows you to pause execution indefinitely - for minutes, hours, or even days — until human input is received. This is possible because LangGraph checkpoints the graph state after each step, which allows the system to persist execution context and later resume the workflow, continuing from where it left off. This supports asynchronous human review or input without time constraints.
+		
+8. CHALLENGE #6 - Nested Workflows
+	a. You can create nested workflow inside a workflow.
+	
+	b. You can create sub-graphs inside/inplace for a node and that will create a nested workflow.
+	
+	c. For e.g. the node "Conduct Interview" in itself is a complicated task as you need to generate different questions for different cancidate, take multiple interviews, etc. so this can be made a nested workflow.
+	
+	d. A subgraph is a graph that is used as a node in another grap - this is the concept of encapsulation applied to LangGraph. Subgraphs allow you to build complex systems with multiple components that are themselves graphs.
+	
+	e. We can use this concept to build multi-agent systems
+	
+	f. The graphs/sub-graphs are reusable meaning lets say you created a graph for taking approval. You can reuse it on multiple places in workflow, be it for posting JD or scheduling interviews, etc.
+	
+9. CHALLENGE #7 - Observability
+	a. Observability refers to how easily you can monitor, debug, and understand what your workflow is doing at runtime.
+	b. For example: error, in workflow, workflow made a decision which you never anticipated, etc. So, in this situation, it's very important for you to keep monitoring the workflow at runtime.
+	c. LangSmith is a great observability tool. It tracks LLM based applications. Here, the problem is LangSmith can only monitor your LangChain, not the glue code which you have written. So this creates partial observability, not complete observability.
+	d. This is solved by LangGraph as it has strong integration with LangSmith. All node execution is tracked in LangSmith.
+
+10. Conclusion:
+	a. What is LangGraph?
+		- LangGraph fs an orchestration framework that enables you to build stateful, multi-step, and event-driven workflows using large language models (LLMs). It's ideal for designing both single-agent and multi-agent agentic Al applications.
+		
+		- Think of LangGraph as a flowchart engine for LLMs — you define the steps (nodes), how they're connected (edges), and the logic that governs the transitions. LangGraph takes care of state management, conditional branching, looping, pausing/resuming, and fault recovery — features essential for building robust, production-grade Al systems.
+		
+	b. When to use what?
+		• Use LangChain when you're building simple, linear workflows — like a prompt chain, summarizer, or a basic retrieval system.
+		• Use LangGraph when your use case involves complex. non-linear workflows that need:
+			• Conditional paths
+			• Loops
+			• Human-in-the-loop steps
+			• Multi-agent coordination
+			• Asynchronous or event-driven execution
+			
+	c. Should We Still Use LangChain?
+		Yes. LangGraph is built on top of LangChain — it doesn't replace it.
+		You'll still use LangChain components like:
+		• ChatOpenAI (LLMs)
+		• Retrievers
+		• DocumentLoaders
+		• PromptTemplate
+		
+		LangGraph handles workflow orchestration, while LangChain provides the building blocks for each step in that workflow.
+		
+
