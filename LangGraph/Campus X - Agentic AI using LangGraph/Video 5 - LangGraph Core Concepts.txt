@@ -1,0 +1,169 @@
+1. What is LangGraph?
+	• LangGraph is an orchestration framework for building intelligent, stateful, and multi-step LLM workflows.
+	• It enables advanced features like parallelism, loops, branching, memory, and resumability making it ideal for agentic and production-grade Al applications.
+	• It models your logic as a graph of nodes (tasks) and edges (routing) instead of a linear chain.
+	
+2.LLM Workflows
+	a. LLM workflows are a step by step process/tasks using which we can build complex LLM applications.
+	
+	b. Each step in a workflow performs a distinct task — such as prompting, reasoning, tool calling, memory access, or decision-making.
+	
+	c. Workflows can be linear, parallel, branched, or looped, allowing for complex behaviours like retries, multi-agent communication, or tool-augmented reasoning.
+	
+	d. Common workflows
+		i. Prompt Chaining:
+			- Calling LLM multiple times in series/sequence
+			- Used when you have a complex task and you want to divide it in multiple subtasks.
+			
+			In → LLM Call 1 → Output 1 → Gate
+										   ├── Pass → LLM Call 2 → Output 2 → LLM Call 3 → Out
+										   └── Fail → Exit
+			
+		ii. Routing:
+			- In → LLM Call Router
+						├── → LLM Call 1 → ┐
+						├-- → LLM Call 2 → ├── → Out
+						└-- → LLM Call 3 → ┘
+						
+			- Let's say you are building a customer chatbot and you get 3 types of queries like technical, sales or refund.
+			- This LLM Call Router will find the intent of the customer query and send/route it to the respective LLM which is designed to deal with specific queries.
+			- So here LLM works like a decision maker.
+			
+		iii. Parallelization:
+			- In
+				 ├── → LLM Call 1 ──┐
+				 ├── → LLM Call 2 ──┼── → Aggregator → Out
+				 └── → LLM Call 3 ──┘
+				 
+			- Here you break a task into multiple subtask, run these subtasks parallely and then merge the subtask results together.
+			- Example: Let's say you are building content moderation for youtube so you subtasks will be to check : Communication Guidelines, Sexual Content, etc. Once all the checks/subtasks are executed, the results will be sent to the Aggregator. The Aggregator will decide what to do.
+				 
+		iv. Orchestrator Workers:
+			- In → Orchestrator
+						├── → LLM Call 1 ──┐
+						├── → LLM Call 2 ──┼── → Synthesizer → Out
+						└── → LLM Call 3 ──┘
+						
+			- This is similar to Parallelization workflow where you divide the tasks into multiple subtasks.
+			- The difference is that in Orchestrator Workers, you do not have pre-knowledge of the nature of the task, so which LLM to hit is decided dynamically.
+			- For example: Your task can be to research for a given topic so you might ask LLM 1 to research about that topic in Google Scholar.
+			
+		v. Evaluator Optimizer
+			- In → LLM Call Generator → LLM Call Evaluator
+						|        			├── Accepted → Out
+						|        			└── Rejected + Feedback
+						|									|
+						|									|
+						|-------<-----(back to Generator)---|
+						
+			- You have a task and the task cannot be executed properly in one go.
+			- For example you want your system to draft a mail and it is possible you might not get a good mail in the first try.
+			- So if the first mail draft isn't good, it gets rejected and reiterated until you get a good mail.
+						
+3. Graphs, Nodes and Edges:
+	Task: The system generates an essay topic, collects the student's submission, and evaluates it in parallel on depth of analysis, language quality, and clarity of thought. Based on the combined score, it either gives feedback for improvement or approves the essay.
+
+	a. GenerateTopic
+		i. System generates a relevant UPSC-style essay topic and presents it to the student
+	
+	b. CollectEssay
+		ii. Student writes and submits the essay based on the generated topic-
+	
+	c. EvaluateEssay (Parallel Evaluation Block)
+		i. Three evaluation tasks run in parallel:
+			- EvaluateDepth — Analyzes depth of analysis, argument strength, and critical thinking.
+			- EvaluateLanguage — Checks grammar, vocabulary, fluency, and tone.
+			- EvaluateCIarity — Assesses coherence, logical flow, and clarity of thought
+	
+	d. AggregateResults
+		- Combines the three scores and generates a total score (e.g. out of 15).
+	
+	e. ConditionalRouting
+		- Based on the total score:
+			• If score meets threshold go to ShowSuccess
+			• If score is below threshold — go to GiveFeedback
+			
+	f. GiveFeedback
+		- Provides targeted suggestions for improvement in weak areas.
+	
+	g. CollectRevision (Optional loop)
+		- Student resubmits the revised essay.
+		- Loop back to EvaluateEssay
+	
+	h. ShowSuccess
+		- Congratulates the student and ends the flow.
+	
+	i. Flow Diagram: 
+		
+		Generate Topic
+			  ↓
+		Write Essay
+			  ↓
+		 ├── Clarity of Thought (Lets say the score is : 5)
+		 ├── Depth of Analysis (Lets say the score is : 5)
+		 └── Language (Lets say the score is : 5)
+			  ↓
+		Final Evaluation (Criteria: If the score > 10, then Success, Else Fail)
+			  ├── Success → END
+			  └── Fail, Feedback
+					   ↓
+					Retake?
+					   ├── Yes → Write Essay
+					   └── No → END
+
+4. State:
+	a. In LangGraph, state is the shared memory that flows through your workflow — it holds all the data bein passed between nodes as your graph runs.
+	
+	b. State of the above workflow:
+		essay_text: str
+		topic: str
+		depth_score: int
+		language_score: int
+		clarity_score: int
+		total_score: int
+		feedback: Annotated[list][str], add]
+		evaluation_round: int
+		
+	c. State is shared among nodes, Mutable and keeps evolving.
+	d. It is alsways in Key-Value pair and is created using TyupedDict or Pydantic
+	
+5. Reducers:
+	a. Reducers in LangGraph define how updates from  (Add, Merge, Replace, etc.), which determines whether new data replaces, merges, or adds to the existing value.
+	c. Lets say you are building a Chatbot: |Human| <---> |LLM|
+	d. Lets say the state is State: "Message": "".
+	e. Human says -> My name is Ankit so State gets updated to --> "Message": "My name is Ankit".
+	f. Chatbot says: How can i help you --> So state gets updated and replaced to --> "Message": "How can i help you"
+	g. Now if Human asks the Chatbot to tell its name, Chatbot wouldn't be able to say as State has been replaced.
+	f. So instead of updating the message, we should add/concat them.
+	
+6. LangGraph Execution Model:
+	a. Graph Definition
+		You define:
+		• The state schema
+		• Nodes (functions that perform tasks)
+		• Edges (which node connects to which)
+
+	b. Compilation [Checks if Graph structure is logically correct or not, it checks if any node is not connected to the graph]
+		- You call .compile() on the StateGraph.
+		- This checks the graph structure and prepares it for execution.
+
+	c. Invocation
+		- You run the graph with .invoke(initial_state).
+		- LangGraph sends the initial state as a message to the entry/first node(s).
+		- Hence, the first node gets activated and the python function(1st node) partially updates the state.
+		- And then, the updated state reaches to the 2nd node through the edge, it is called message passing.
+
+	d. Super-Steps Begin
+		- Execution proceeds in rounds.
+		- As a node can directly send State to 3 other connected nodes parallely so instead of calling it step, LangGraph calls it super step.
+		- One superstep can have 1 step or multiple step.
+		
+	e. Message Passing & Node Activation
+		- The messages are passed to downstream nodes via edges.
+		- Nodes that receive messages become active for the next round.
+		
+	f. Halting Condition
+		Execution stops when:
+		• No nodes are actiæ, and
+		• No messages are in transit
+	
