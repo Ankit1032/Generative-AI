@@ -1,0 +1,64 @@
+1. What is Persistence?
+	a. Persistence in LangGraph refers to the ability to save and restore the state of a workflow over time.
+	
+	b. Persistence saves both the intermediate and final values of the state. If a key(name) in state keeps changing during workflow execution of nodes, Persistence will store all the updates done on names.
+	
+	c. Workflow Execution: __start__ --> Node 1 --> Node 2 --> Node 3 --> __end__
+			i. Let's say your workflow crashed in Node 2 due to server failure.
+			ii. As Persistence stoare the intermediate valaues for all the updates, instead of starting the process again from __START__, we can directly start from Node 2.
+			iii. This is called Fault Tolerance.
+	
+	d. Persistence is also used in stroing conversation in ChatBot. You can use any DB to store the conversation.
+	
+2. Checkpointers in Persistence
+	a. Checkpointers divided your graph execution into checkpoints and stores the state in each checkpoints.
+	b. Every super-step becomes an checkpoint.
+	c. Workflow
+		[Checkpoint → State]
+		START
+		   │
+		   │  (Superstep 1)
+		   ↓
+		[Checkpoint → State]
+		NODE 1
+		   │
+		   │  (Superstep 2 – Parallel Execution)
+		   ├────────→ NODE 3
+		   ├────────→ NODE 2
+		   └────────→ NODE 4
+				│         │         │
+				└─────────┴─────────┘
+					  (Superstep 3)
+						   ↓
+						[Checkpoint]
+						END
+		
+	d. So we can say this above graph will have 3 workflow. And each superstep will have one checkpoint even if one superstep has multiple parallel node execution like we see from Node 1 to Node(2,3,4)
+	
+	e. Example: We have a reducer numbers: [list[int], add]
+		START int:1
+		   │
+		   │  (Superstep 1)
+		   ↓
+		NODE 1 -> int:2 so numbers=[1,2] <-- gets saved in checkpointer
+		   │
+		   │  (Superstep 2 – Parallel Execution)
+		   ├────────→ NODE 3 -> int:5
+		   ├────────→ NODE 2 -> int:8
+		   └────────→ NODE 4 -> int:81 so numbers=[1,2,5,8,81] <-- gets saved in checkpointer
+				│         │         │
+				└─────────┴─────────┘
+					  (Superstep 3)
+						   ↓
+						END --> numbers=[1,2,5,8,81] <-- gets saved in checkpointer
+						
+3. Threads in Persistence
+	a. Whenevr you use Persistence concept in a workflow, you assign a unique thread_id to that workflow. So whatever values are stored for that workflow, it will be stored in DB against that thread_id.
+	
+	b. In the chatboxes we see in ChatGPT, each chatbox has a unique thread_id assigned to it.
+	
+4. Benefits of Persistence:
+	a. Short Term Memory
+	b. Fault Tolerance
+	c. HITL
+	d. Time Travel [Resuming conversation from past conversation]
