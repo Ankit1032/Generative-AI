@@ -1,0 +1,29 @@
+Without Tools:
+START → Chat_node → END
+
+With Tools:
+START → Chat_node
+            ├── → tools → END
+            └── → END
+			
+
+Tools: 
+1. Numerical Calculation
+2. Web Search
+3. Stock Price
+
+# To add tool, you make the collection of tools and make a special node called tool node. This node handles all the tools
+
+# In LangGraph, a ToolNode is a prebuilt node type that acts as a bridge between your graph and external tools (functions, APIs, utilities).
+
+# Normally in LangGraph you'd write a node function yourself: it takes in state and returns state.
+
+# A ToolNode is a ready-made node that knows how to handle a list of LangChain tools.
+
+# Its job: listen for tool calls from the LLM (like "call search()" or "get_weather()") and automatically route the request to the correct tool, then pass the tool’s output back into the graph.
+
+# tool condition: It is an inbuilt langgraph function which you use in chat_node. And this tool condition tells you if the LLM need to chat or call the tool
+
+# tools_condition is a prebuilt conditional edge function that helps your graph decide:
+
+# “Should the flow go to the ToolNode next, or back to the LLM?”
