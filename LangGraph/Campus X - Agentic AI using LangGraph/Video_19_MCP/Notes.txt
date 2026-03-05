@@ -1,0 +1,10 @@
+1. Let's say you are integrating yor chatbot with github. Now suddely if the API structre changes at github's end, you will have to manually change the API in your own chatbot code.
+
+2. Now the problem gets worse when you have 100s of tools integrated in your chatbot. If all these tools decided to change their API structure, you will have to manually change it.
+
+3. Here comes MCP (We will take example of our chatbot and github):
+	a. Our chatbot will be the client and Github will be the server.
+	b. in MCP, you keep a proper SoC(seperation of concern) between the client and the server.
+	c. so the tools related code stays in server whereasclient side only keeps a config code.
+	d. So even if any APIs get updated in server side or any other code changes, the config code remains the same.
+	e. Version changes in Github won't affect the client side.
