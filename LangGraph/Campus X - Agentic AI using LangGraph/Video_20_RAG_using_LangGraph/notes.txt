@@ -1,0 +1,11 @@
+1. Reasons for using RAG
+	a. Outdated Knowledge: If the LLM knowledge is cut off on 31st August, then it cannot answer any question based on what happens after that date.
+	b. Privacy: Providing information to LLM on which LLM is not trained upon.
+	c. Hallucinations: As RAG provides the context, it keeps the LLM grounded.
+	
+2. RAG works on principle: In-Context Learning
+	a. Query  ──┐
+				├──> Prompt → LLM (Parametric Knowledge) → Response
+	   Context ─┘
+	   
+	b. Parametric Knowledge is what LLM has learned during its training.
