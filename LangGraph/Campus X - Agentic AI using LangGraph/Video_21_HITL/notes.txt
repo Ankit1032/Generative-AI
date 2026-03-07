@@ -1,0 +1,37 @@
+1. What is HITL?
+	a. HITL (Human-in-the-Loop) is a design approach in AI systems where a human actively participates at critical points of the AI workflow — either to supervise, approve, correct, or guide the model’s output.
+
+	b. Think of HITL as putting a human “checkpoint” inside an AI pipeline so that important decisions are not made autonomously by the model.
+
+	c. Why HITL Exists?
+		i. To help agentic systems
+		ii. To add accountability
+
+	d. HITL ensures:
+		• Accuracy:
+			- For example, while extracting/analysing an invoice, your OCR/LLM mentioned its $12000 instead of $1200. If you let the LLM/Agent make the payment, youu will loose anadditional ~$11k. So iots important for you to add a HITL before paying your invoice.
+		• Safety
+			- You ask your AI to delete the files which are 30 days old. LLM responds that there are 10 files which are in your current project directory and wants to re-confirm if you want it to be deleted i.e. HITL. This increases the safely.
+		• Ethical alignment:
+			- Let's say you have an Agent/LLM in place which responds to customer issue mails. for once, it replied/drafted an response for an angry customer in a non-emotional way which is not good for the business, so we require HITL efore replying.
+		• Better user experience:
+			- Adding the synergy of both human and AI will make the user experience better.
+
+	e. Common HITL Patterns:
+		• Action Approval Pattern (Approve / Reject Before Execution)
+		• Output Review / Edit Pattern
+		• Ambiguity Clarification Pattern
+		• Escalation Pattern
+		
+	NOTE: AI Agent can't be left autonomous as LLMs are non-deterministic and not perfect and can hallucinate.
+	
+	
+2. Steps to add HITL in LangGraph
+	a. Pause/Interrput
+	b. Save State
+	c. Prepare a message
+	d. Send message to frontend
+	
+	a. Return the interrupt
+	b. user writes input
+	c. Approval (Yes/No)
