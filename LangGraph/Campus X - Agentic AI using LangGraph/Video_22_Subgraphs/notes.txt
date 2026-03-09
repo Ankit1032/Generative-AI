@@ -1,0 +1,157 @@
+1. What are Subgraphs?
+
+	a. A subgraph in LangGraph usually means a graph that is embedded and executed as a node inside another graph.
+
+
+	b. Textual Diagram Representation:
+
+					Main Graph
+						|
+						|  Input: {"foo": "bar"}
+						|
+			  -------------------------
+			  |                       |
+			  v                       v
+
+		  [ Subgraph 1 ]          [ Subgraph 2 ]
+		  (embedded graph)        (embedded graph)
+
+		  Internal structure:     Internal structure:
+			 Node A                   Node A
+			   |  \                   |  \
+			   |   \                  |   \
+			 Node B  Node C         Node B  Node C
+
+
+	c. Outputs:
+
+		- Subgraph 1 produces:
+			{"foo": "bar"}
+			{"hello": "world"}
+
+		- Subgraph 2 produces:
+			{"foo": "bar"}
+			{"fizz": "buzz"}
+
+
+	d. Conceptually:
+
+		Main Graph
+		   └── calls Subgraph as if it were a single node
+				  └── Subgraph runs its internal nodes
+				  └── Returns its final output to the Main Graph
+				  
+2. Why Subgraphs are needed?
+
+	a. Basic flow:
+		User → LLM → Output
+
+	But real-world AI systems are more complex and require
+
+		- Tool calls
+		- RAG
+		- Conditional routing
+		- Retries
+		- Memory
+		- HITL
+		- Evaluation
+		- Guardrails
+		
+	c. It gets very complex thing. It can become easy if we break down the agent into small multple agents(subgraphs)
+	
+	d. Subgraph improves:
+		- Modularity
+		- Reusability
+		- Maintanability
+		
+	e. LangGraph Benefits:
+		- Failure isolation: Failure or crash of one subgraph wouldn't stop your whole langgra[h process so it isolates failure points.
+		- State separation: Every subgraph has its own separate state so it wouldn't interact or make changes in the global state.
+		- Observability: Using LangSmith, you can observe to the granular level of subgraphs in LangGraph. 
+		
+3. How to make a subgraph?
+	a. There are 2 ways to make a subgraph. When adding subgraphs, you need to define how the parent graph and the subgraph communicate:
+
+		• Type 1:  Invoke a graph from a node — subgraphs are called from inside a node in the parent graph
+
+		• Type 2: Add a graph as a node — a subgraph is added directly as a node in the parent and shares state keys with the parent
+		
+
+	1) Invoke Subgraph (Call from a Node)
+
+		Parent Graph
+			Node A
+			   |
+			Node B
+			   |
+			Node C  ---> (invokes Subgraph)
+
+		Subgraph (separate graph executed independently)
+			Sub Node 1
+			   |
+			Sub Node 2
+			   |
+			Sub Node 3
+
+		Here:
+		- The parent node calls the subgraph.
+		- The subgraph runs separately.
+		- Control returns back to the parent graph after execution.
+		- The parent graph and subgraph can have their own separate state 
+
+
+	2) Add Subgraph as a Node (Embedded Subgraph)
+
+		Parent Graph
+			Node A
+			   |
+			Node B
+			   |
+			[ Subgraph Node ]
+				   |
+				Sub Node 1
+				   |
+				Sub Node 2
+				   |
+				Sub Node 3
+
+		Here:
+		- The subgraph is added directly as a node.
+		- It becomes part of the parent graph structure.
+		- The subgraph shares state with the parent graph.
+
+4. Hands-on code diagram
+
+	a. High-Level Flow:
+
+		User → LLM → LLM → Output
+				 (answer)   (translate)
+
+
+	b. Parent Graph (State 1)
+
+		START
+		  |
+		Generate
+		  |
+		Translate   ---->  (invokes Subgraph: State 2)
+		  |
+		END
+
+
+	c. Subgraph (State 2)
+
+		START
+		  |
+		Trans
+		  |
+		END
+
+
+	d. Explanation:
+
+		- The "Translate" node in State 1 does not directly perform all logic.
+		- Instead, it invokes (calls) a separate subgraph (State 2).
+		- The subgraph executes independently (START → Trans → END).
+		- Once the subgraph finishes, control returns to the parent graph.
+		- The parent graph then proceeds to END.
