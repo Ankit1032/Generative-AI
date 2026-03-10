@@ -1,0 +1,226 @@
+1. A LLM at inference is just a Parameterized math function : y = fθ(x)
+	
+	a. For example: Linear Regression = y= mx+c where m and c are parameters
+	b. So we can write the above equation as : y = f_{m,b}(x)
+	c. The "θ" represents billions of parameters.
+	d. "x" represents the input(prompt) token which you send to LLM during inference.
+	e. "y" is your output token.
+	f. "y" depends on "x" and "θ" where "θ" is fixed and user cannot do anything about it but "x" is not fixed hence user can change it.
+	
+2. But this Parameterized math function is stateless: y = fθ(x)
+
+	a. A system is stateless if it's output depends only on the current input, and not on anything that happened before.
+	
+	b. If we change one prompt(x1) then eq: y1 =  fθ(x1), if we change our prompt(x2) again, then eq: y2 =  fθ(x2). So y2 was only dependent on x2 and x1 or y1 didn't have any role to play with y2 output. This is called being stateless.
+
+3. Context Window - The context window is the amount of text an LLM can read and remember at one time before answering. [It can work like an memory]
+
+4. So LLM is trained on huge internet data which gets stored in the LLM's parameters. Thats why we call it parametric knwoledge. So whenever we prompt, LLM searches in its parameters if it has the knowledge to answer it.
+	
+	a. Incase it doesn't have the knowledge in its parameters, it can refer to external PDFs (RAG) to answer the user query. This is called In-context learning.
+	
+	b. In-context learning is an emergent ability that allows an LLM to use information and patterns present in the prompt itself, in addition to its trained parametric knowledge, to generate an answer.
+	
+5. To use context window as memory: (temporary/short term memory as once you close the session, the context disappears)
+	x1 = "My name is Ankit"
+	1st message: y1 = fθ(x1)
+	
+	x2 = "What is my name"
+	2nd message: y2 = fθ(concatenationOf(x1,y1,x2))
+	
+	This way y2 will output your name.
+	
+6. Short Term Memory is fragile as, if server crashes, we loose the memory.
+
+7. Short Term Memory (STM) will have Context Window Size propblem as we keep adding/strong the data into the context window. To solve this, there are 2 ways:
+	
+	a. Trimming: You only consider last N recent messages. Problem: Missing Info
+	
+	b. Summarization: You summarize the context window data into smaller tokens.
+	
+8. STM is thread-scoped
+
+	A. Loss of user continuity across conversations. (In ChatGPT, even if you chat on a new chat window, it remembers data from other chat windows whereas in STM, you will not be able to do as STM is limited in each thread scope.)
+	B. Learning never compounds over time  
+	C. Cross-thread reasoning is impossible (ChatGPT remembers your preferences throughout chat windows which helps with personalization of answers and behaviour, but STM couldn't)
+	
+9. Solution: We need a new kind of memeory: [Long Term memory]
+	a. Property 1:
+		- Information that should survive:
+
+			• beyond a single conversation  
+			• beyond a single session  
+			• sometimes even beyond days or weeks  
+
+			This is the kind of information that defines continuity.
+
+		- Things like:
+
+			• who the user is  
+			• how the system is expected to behave for them  
+			• what tends to work and what usually fails  
+			• what decisions were already made in the past
+			
+	b. Property 2:
+		- It has to be selective.
+
+		- Only information that proves to be stable, useful, and reusable should survive beyond a single thread. Everything else should naturally fade away.
+		
+10. Long Term memory (LTM)
+	
+	3 Types of LTM:
+	a. Semantic Memory (Facts & Knowledge)
+		- Definition: Stores general world knowledge, facts, and concepts.
+		- LLM Application: Used to store user profiles, product information, or external documents, often implemented via RAG (Retrieval-Augmented Generation).
+		- Purpose: Allows the AI to provide accurate, factual information without having been trained on that specific data. 
+		
+		CampusX:
+		What it stores:
+		Facts, knowledge, and stable information that are not tied to a single event.
+
+		Examples:
+		"User prefers Python."
+		"This user is a beginner."
+		"The system uses PostgreSQL."
+		"Budget constraint is ₹10K."
+
+		Why it exists:
+		Answers questions like:
+		"What do we know about this user?"
+		"What constraints always apply?"
+		"What facts should persist?"
+
+		This is the most common form of LTM in products.
+
+	b. Episodic Memory (Experiences & Context)
+		- Definition: Stores specific, personal, or contextual experiences.
+		- LLM Application: Remembers past interactions with a user (e.g., "User asked for a refund yesterday").
+		- Purpose: Enables personalized, human-like, and contextualized conversations. 
+		
+		CampusX:
+		What it stores:
+		Past events and experiences, usually tied to time or context.
+
+		Examples:
+		"Yesterday, the user rejected solution A."
+		"The last deployment failed due to missing credentials."
+		"In the previous session, this approach worked."
+		"User approved plan X in the last conversation."
+
+		Why it exists:
+		Answers questions like:
+		"What did we do last time?"
+		"What happened before this?"
+		"Have we tried this already?"
+
+		STM cannot answer these across threads. Episodic LTM can.
+
+	c. Procedural Memory (Skills & Behavior)
+		- Definition: Stores instructions, rules, or steps to complete tasks.
+		- LLM Application: Defines how the agent behaves, such as prompt instructions, tool-use rules, or multi-step action sequences.
+		- Purpose: Helps the AI "know" how to execute tasks without needing explicit, repeated instructions. 
+		
+		CampusX:
+		What it stores:
+		Strategies, rules, and learned behaviors.
+
+		Examples:
+		"When solving SQL problems for this user, avoid subqueries."
+		"If tool X fails, retry with tool Y."
+		"For this user, explain step by step."
+		"Preferred workflow for task Z."
+
+		Why it exists:
+		Answers questions like:
+		"What approach usually works?"
+		"How should I behave in this situation?"
+		"What strategy should I follow?"
+
+		This is what enables learning that compounds over time.
+		
+11. How does LTM work?
+	Step 1: Creation : Is anything from what just happened worth remembering beyond this conversation
+		What the system looks at:
+
+		• User messages
+		• Model responses
+		• Tool outcomes
+
+
+		What happens in this step:
+
+		The system:
+
+		• extracts memory candidates (For example: User prefers python is a memory candidate)
+		• filters out noise
+		• decides scope (user / agent / app)
+		• decides whether to:
+			• create a new memory
+			• update an existing one
+			• ignore it
+			
+	Step 2: Storage : Where and how do we keep this memory
+
+		"Where and how do we keep this memory?"
+
+
+		What storage actually means:
+
+		• Writing memory to a durable store
+		• Assigning identifiers and metadata
+		• Making it survive restarts and crashes
+
+
+		Depending on the memory type, this might be:
+
+		• a relational database
+		• a key–value store
+		• a log
+		• a vector database (for semantic lookup)
+	
+	
+	Step 3: Retrieval :
+
+		"Given the current situation, what should I remember right now?"
+
+
+		What retrieval involves:
+
+		The system:
+
+		• looks at the current input
+		• decides whether memory is needed
+		• searches memory stores
+		• selects a small, relevant subset
+
+
+		Key point:
+
+		Retrieval is selective, not exhaustive.
+	
+	
+	Step 4: Injection :
+		"How does memory actually influence the model?"
+
+
+		What injection really is:
+
+		• Retrieved memory is inserted into STM
+		• It becomes part of the prompt
+		• The model sees it as just more tokens
+	
+
+12. The Challenges
+
+1. Deciding what is worth remembering
+2. Retrieving the right memory at the right time
+3. Orchestrating the entire system
+
+13. Libraries in Market for memory layer
+	a. LangMem
+	b. mem0
+	c. SuperMemory
+	
+14. This problem arises only because LLM doesn't have any intrinsic memory. So google has launced a paper which proposes to create LLM with its own LTM.
+	a. Titans + MIRAS: Helping AI have long-term memory
+
