@@ -1,0 +1,16 @@
+1. When you build a chatbot and users start prompting, they use different chat windows to chat about different things where they share about their unique details in each window. So people who build chatbot, when user asks/prompts a query, the chatbot not only answers the question but also thinks if the prompt had any detail about the user which is supposed to be stored. If YES, then the chatbot stores that detail in a global DB for each different thread. Hence persistence.
+
+2. This persistence is called long term memory. We can use this to give personalised response to each user. User's details can be like his/her name, the fav programming language, what style of response does the person like, etc..
+
+3. LangGraph has a memory store which is implemented using a abstract class called BaseStore. 
+	a. BaseStore can :
+		i. Create new memory
+		ii. Search for existing memory
+		iii. Edit the existing memory
+		iv. Delete the existing memory.
+
+	b. For example: InMemoryStore --> Uses RAM to store memory
+					PostGres Store --> Stores memory in postgres
+					RedisStore --> stores memory in Redis
+					
+4. 
