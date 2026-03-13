@@ -1,0 +1,53 @@
+1. Planning Agents:
+	A planning agent is an AI agent that does not immediately jump to answering or acting — instead, it first creates a structured plan of what needs to be done, and then executes that plan step-by-step.
+
+
+	Planning agents are useful when tasks are:
+
+	• Long or multi-step
+	• Require structure (blogs, projects, apps)
+
+
+	Phase 1 — Plan
+	Break the task into clear steps or sub-tasks.
+
+
+	Phase 2 — Execute
+	Complete each step systematically, often checking progress.
+	
+2. Blog project Arcitecture
+
+	Planning Agent Flow [ (C) means continional edge)
+
+	__start__
+		|
+	  router
+	   /  	 \
+	  / (C)   \(C)
+	research   |
+	   |       |    
+	   \	   |	
+		v      v
+		orchestrator
+			 |(C)
+		   worker
+			 |
+		   reducer
+			 |
+		   __end__
+	  
+
+	a. Router Node: This will decide whether any web search is required to be done for the given topic
+		- If the topic is "Top AI news in Jan 2026" then we require web search
+		- If the topic is "Self Attention", then LLM already has knowledge about this.
+	
+	b. Research Node: We come to this node if web search is required. This node decides what all researches/web searches are required. It plans the searches. We will use Tavily API for web search.
+	
+	c. Orchestrator Node: The reesults from tavily gets pushed in thos node. This is a planner node and it will decide what sections are required in your blog, also how many words should be present in each section. It also decides if each section requires research, citations, code, etc.
+		- If the topic doesn't require web search then the result will directly come from Router Node.
+	
+	d. Worker Node: This writes our blog. If we have 9 sections then 9 worker agents will be triggered to write blog for each section. These nodes will run parallely.
+	
+	e. Reducer Node: It has 2 work:
+		i. It takes the results(Blogs) of each section and stiches them.
+		ii. It reads the whole blog and decides where we need to put images.
