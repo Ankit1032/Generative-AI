@@ -1,0 +1,64 @@
+NOTE: CampusX guy will slowly/iteratively keep adding new features of CRAG in each file. 
+He won't add everything all at once
+
+1. Standard RAG Diagram
+
+	(1) Query
+	User sends a query.
+
+			|
+			v
+
+	(2) Embedding Model
+	Query → converted into a vector embedding.
+
+			|
+			v
+
+	(3) Vector DB
+	The query vector is compared with stored document vectors
+	(books / docs / knowledge base).
+
+	Vector DB returns the most similar documents.
+
+			|
+			v
+
+	Retrieved Contexts
+	Relevant chunks of documents are returned.
+
+			|
+			v
+
+	(4) LLM
+	LLM receives:
+	• User query
+	• Retrieved contexts
+
+	LLM uses both to generate an answer.
+
+			|
+			v
+
+	(5) Response
+	Final response returned to the user.
+	
+
+2. We always ask our LLM to respond because on the retrieved context fed to it and LLM blindly trusts those given context. The problem is if the retrieval context is wrong then LLM will also give wrong answer.
+	
+	a. For example you Vector DB contains infromation about ML book only. User asked what is LLM. Now RAG will retrieve certain chunks based on the semantic similarity and retrieved data would be wrong as Vector DB doesn't contain any information about LLM.
+	
+3. CRAG fixes it:
+	a. We add a model called "retrieval Evaluator" in between the retriever and the Generator(LLM)
+	b. It sees the document and the query, and then decides if the retrieved context is useful or not.
+	c. If the user query is about LLM and the retrieved context is about ML then model will understand that the retrieved context is not relevant.
+	d. The model judges if the context is relevant, not relevant or ambiguous(partially relevant) based on the user query.
+	
+	e. If the retrieved context is :
+		- RELEVANT: The model sends the whole context to RAG
+		- NOT RELEVANT: The model uses tools/external knowledge (Web Search) to answer the question
+		- PARTIALLY RELEVANT: 
+			- It pushes the relevant part to the normal LLM for response
+			- for the missing info, it again uses external knowledge/tool calling to answer this segment.
+			
+	
