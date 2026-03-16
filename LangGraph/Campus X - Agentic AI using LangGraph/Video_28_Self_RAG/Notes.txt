@@ -1,0 +1,27 @@
+1. 3 main problems in RAG
+    a. RAG retrieves even when retrieval is unnecessary
+
+    b. RAG blindly trusts retrieved documents
+
+    c. RAG doesn’t verify its own answers
+
+2. Example:
+    - User Query: "What causes diabetes?"
+
+    - Vector DB/ Knowledge Base: "Diabetes is a chronic medical condition that affects how the body processes blood sugar (glucose)."
+
+    - Even tho the user query answer's not same as the chunk present in vector DB, it will still be fetched and given to LLM for response and this is problematic
+	
+3. SELF RAG --> self reflection
+	a. Self-RAG stands for Self Reflective RAG where the LLM actively judges its own retrieval, evidence, and answers instead of blindly trusting retrieved documents.
+	
+	Question it asks for self reflection
+		i. Should retrieval happen?
+
+		ii. Are the retrieved documents relevant?
+
+		iii. Is the generated response grounded in the retrieved documents?
+
+		iv. Does the response actually answer the user’s question?
+		
+4. 
