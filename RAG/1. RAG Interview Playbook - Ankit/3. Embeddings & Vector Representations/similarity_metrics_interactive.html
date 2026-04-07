@@ -1,0 +1,119 @@
+
+<div style="padding:4px 0">
+<div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:14px">Drag the sliders to change two 2D vectors and see how each similarity metric responds.</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+<div>
+<div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:6px">Vector A angle: <span id="aAngle">30</span>°, magnitude: <span id="aMag">3</span></div>
+<input type="range" min="0" max="360" value="30" step="1" id="aAngleSlider" style="width:100%;display:block;margin-bottom:6px">
+<input type="range" min="1" max="8" value="3" step="1" id="aMagSlider" style="width:100%">
+</div>
+<div>
+<div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:6px">Vector B angle: <span id="bAngle">80</span>°, magnitude: <span id="bMag">5</span></div>
+<input type="range" min="0" max="360" value="80" step="1" id="bAngleSlider" style="width:100%;display:block;margin-bottom:6px">
+<input type="range" min="1" max="8" value="5" step="1" id="bMagSlider" style="width:100%">
+</div>
+</div>
+
+<div style="position:relative;width:100%;height:220px">
+<canvas id="vecCanvas" style="width:100%;height:220px"></canvas>
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px">
+<div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px;text-align:center">
+<div style="font-size:11px;color:var(--color-text-tertiary);margin-bottom:4px">Cosine similarity</div>
+<div style="font-size:22px;font-weight:500;color:var(--color-text-primary)" id="cosVal">0.87</div>
+<div style="font-size:11px;color:var(--color-text-tertiary);margin-top:2px">angle-only</div>
+</div>
+<div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px;text-align:center">
+<div style="font-size:11px;color:var(--color-text-tertiary);margin-bottom:4px">Dot product</div>
+<div style="font-size:22px;font-weight:500;color:var(--color-text-primary)" id="dotVal">13.0</div>
+<div style="font-size:11px;color:var(--color-text-tertiary);margin-top:2px">angle × magnitude</div>
+</div>
+<div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px;text-align:center">
+<div style="font-size:11px;color:var(--color-text-tertiary);margin-bottom:4px">Euclidean dist</div>
+<div style="font-size:22px;font-weight:500;color:var(--color-text-primary)" id="eucVal">2.8</div>
+<div style="font-size:11px;color:var(--color-text-tertiary);margin-top:2px">lower = more similar</div>
+</div>
+</div>
+</div>
+
+<script>
+const canvas = document.getElementById('vecCanvas');
+const ctx = canvas.getContext('2d');
+
+function getVec(angleDeg, mag) {
+  const r = angleDeg * Math.PI / 180;
+  return { x: Math.cos(r) * mag, y: -Math.sin(r) * mag };
+}
+
+function update() {
+  const aAngle = +document.getElementById('aAngleSlider').value;
+  const aMag   = +document.getElementById('aMagSlider').value;
+  const bAngle = +document.getElementById('bAngleSlider').value;
+  const bMag   = +document.getElementById('bMagSlider').value;
+
+  document.getElementById('aAngle').textContent = aAngle;
+  document.getElementById('aMag').textContent   = aMag;
+  document.getElementById('bAngle').textContent = bAngle;
+  document.getElementById('bMag').textContent   = bMag;
+
+  const A = getVec(aAngle, aMag);
+  const B = getVec(bAngle, bMag);
+
+  const dot = A.x*B.x + A.y*B.y;
+  const magA = Math.sqrt(A.x*A.x + A.y*A.y);
+  const magB = Math.sqrt(B.x*B.x + B.y*B.y);
+  const cos = dot / (magA * magB);
+  const euc = Math.sqrt((A.x-B.x)**2 + (A.y-B.y)**2);
+
+  document.getElementById('cosVal').textContent = cos.toFixed(3);
+  document.getElementById('dotVal').textContent = dot.toFixed(1);
+  document.getElementById('eucVal').textContent = euc.toFixed(2);
+
+  const W = canvas.parentElement.offsetWidth;
+  canvas.width = W * devicePixelRatio;
+  canvas.height = 220 * devicePixelRatio;
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+  ctx.clearRect(0, 0, W, 220);
+
+  const cx = W / 2, cy = 110, scale = 20;
+
+  ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--color-border-tertiary') || 'rgba(128,128,128,0.2)';
+  ctx.lineWidth = 0.5;
+  for (let r = scale; r <= scale * 9; r += scale) {
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, 2*Math.PI); ctx.stroke();
+  }
+  ctx.beginPath(); ctx.moveTo(cx - scale*9, cy); ctx.lineTo(cx + scale*9, cy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx, cy - scale*9); ctx.lineTo(cx, cy + scale*9); ctx.stroke();
+
+  function drawVec(v, color, label) {
+    const ex = cx + v.x * scale, ey = cy + v.y * scale;
+    ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(ex, ey); ctx.stroke();
+    const ang = Math.atan2(v.y, v.x);
+    const hx = ex - Math.cos(ang)*8, hy = ey - Math.sin(ang)*8;
+    ctx.beginPath();
+    ctx.moveTo(ex, ey);
+    ctx.lineTo(hx + Math.cos(ang+0.4)*6, hy + Math.sin(ang+0.4)*6);
+    ctx.lineTo(hx + Math.cos(ang-0.4)*6, hy + Math.sin(ang-0.4)*6);
+    ctx.closePath(); ctx.fill();
+    ctx.font = `500 13px sans-serif`;
+    ctx.fillText(label, ex + (v.x > 0 ? 8 : -20), ey + (v.y > 0 ? 12 : -6));
+  }
+
+  drawVec(A, '#534AB7', 'A');
+  drawVec(B, '#0F6E56', 'B');
+
+  ctx.strokeStyle = '#EF9F27'; ctx.lineWidth = 0.5; ctx.setLineDash([4,3]);
+  ctx.beginPath();
+  ctx.moveTo(cx + A.x * scale, cy + A.y * scale);
+  ctx.lineTo(cx + B.x * scale, cy + B.y * scale);
+  ctx.stroke(); ctx.setLineDash([]);
+}
+
+['aAngleSlider','aMagSlider','bAngleSlider','bMagSlider'].forEach(id => {
+  document.getElementById(id).addEventListener('input', update);
+});
+update();
+</script>
