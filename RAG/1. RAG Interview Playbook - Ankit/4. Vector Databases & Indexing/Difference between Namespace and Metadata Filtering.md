@@ -36,3 +36,12 @@ Metadata filtering is like using a **search filter** on a website. All data live
 ```python
 # Limits search strictly to "User-A" docs
 docs = vectorstore.similarity_search(query, k=3, namespace="User-A")
+```
+
+**Using Metadata Filters:**
+```python
+# Searches the whole index but only returns "PDF" types from "2024"
+filters = {"file_type": "pdf", "year": 2024}
+docs = vectorstore.similarity_search(query, k=3, filter=filters)
+```
+
