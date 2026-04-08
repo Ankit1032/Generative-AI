@@ -42,6 +42,7 @@ docs = vectorstore.similarity_search(
 
 print(docs.page_content)
 # Output: "Shipping takes 3-5 business days."
+```
 
 ## Key Differences
 
