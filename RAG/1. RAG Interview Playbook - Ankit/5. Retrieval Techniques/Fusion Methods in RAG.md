@@ -103,6 +103,10 @@ Useful in multi-retriever systems
 
 *   **Explanation**: It is a simplified weighted sum where $\alpha$ represents the weight of the first retriever (usually Vector) and $(1 - \alpha)$ represents the weight of the second (usually BM25).
 *   **Example**: Setting $\alpha = 1.0$ makes the system purely semantic (vector-only), while $\alpha = 0.5$ creates an equal 50/50 split between keyword and semantic results.
+*  📌 Formula
+      \[
+      Score(d) = \alpha \cdot Dense(d) + (1 - \alpha) \cdot Sparse(d)
+      \]
 
 ### Summary Comparison Table
 
