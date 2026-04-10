@@ -9,6 +9,31 @@ In Retrieval-Augmented Generation (RAG), **fusion methods** are techniques used 
     *   **Formula**: $Score(d) = \sum_{r \in R} \frac{1}{k + rank(r, d)}$
 *   **Example**: If Document A is ranked **1st** by a vector search and **3rd** by a keyword search (with $k=60$), its score is $\frac{1}{60+1} + \frac{1}{60+3} = 0.0164 + 0.0158 = 0.0322$.
 
+*   #### 📊 Example
+
+Retriever A: Doc1, Doc2, Doc3
+
+Retriever B: Doc3, Doc2, Doc4
+
+RRF scores:
+- Doc2 → appears high in both → high score  
+- Doc3 → appears in both → strong  
+- Doc1 → only in A → lower  
+- Doc4 → only in B → lower  
+
+👉 Final ranking:
+Doc2 > Doc3 > Doc1 ≈ Doc4
+
+
+---
+
+#### 🧠 Usage
+- Hybrid search (BM25 + embeddings)
+- Production-grade RAG systems (very common)
+- When scores are not comparable across models
+
+
+
 ### 2. Weighted Sum (Linear Fusion)
 **Definition**: This method combines the raw similarity scores from different retrievers by assigning a weight (importance) to each source and summing them.
 
