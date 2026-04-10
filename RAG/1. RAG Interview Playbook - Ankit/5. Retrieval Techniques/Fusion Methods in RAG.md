@@ -2,6 +2,15 @@
 
 In Retrieval-Augmented Generation (RAG), **fusion methods** are techniques used to merge and re-rank document results from multiple sources (such as hybrid search or multiple query variations) into a single, optimized list for the Large Language Model (LLM).
 
+Why do we need fusion?
+Because no single retriever is perfect:
+
+   - BM25 → good for keyword matching
+   - Dense embeddings → good for semantic similarity
+   - Hybrid systems → combine both
+
+Fusion helps leverage strengths of all.
+
 ### 1. Reciprocal Rank Fusion (RRF)
 **Definition**: RRF is a rank-based algorithm that calculates a score for each document based solely on its position in multiple retrieved lists, rather than the raw similarity scores.
 
