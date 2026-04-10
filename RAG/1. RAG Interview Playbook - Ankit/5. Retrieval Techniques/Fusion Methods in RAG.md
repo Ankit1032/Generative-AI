@@ -61,6 +61,41 @@ Fusion helps leverage strengths of all.
 *   **Explanation**: Standard normalization (like Min-Max) can be skewed by outliers. DBSF analyzes the mean and variance of the scores in each list to ensure that one retriever's "high" score truly represents high confidence relative to its own typical output before merging it with others.
 *   **Example**: If Retriever A typically returns scores between 0.1 and 0.2, and Retriever B returns 0.8 to 0.9, DBSF adjusts these ranges so a "0.2" from A is treated with equal significance to a "0.9" from B.
 
+* 💡 **Intuition**  
+Different retrievers produce scores on different scales:
+
+- **BM25** → wide range  
+- **Embeddings** → cosine similarity (-1 to 1)
+
+👉 DBSF converts them into a common distribution space.
+
+📌 **Typical Process**
+
+1. Compute mean & std of scores per retriever  
+2. Normalize (z-score):
+
+   $$
+   z = \frac{x - \mu}{\sigma}
+   $$
+
+3. Combine (sum or weighted sum)
+
+📊 **Example**
+
+   * Retriever A scores: [10, 8, 5]
+   * Retriever B scores: [0.9, 0.7, 0.6]
+   * After normalization:
+      * A → [1.2, 0.5, -0.8]
+      * B → [1.0, 0.2, -0.5]
+   * Now combine → comparable!
+
+🧠 Usage
+
+When score scales differ significantly
+More principled than naive weighted sum
+Useful in multi-retriever systems
+
+
 ---
 
 ### 4. Alpha Weighting ($\alpha$-weighting)
