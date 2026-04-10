@@ -24,15 +24,12 @@ RRF scores:
 👉 Final ranking:
 Doc2 > Doc3 > Doc1 ≈ Doc4
 
-
----
-
 #### 🧠 Usage
 - Hybrid search (BM25 + embeddings)
 - Production-grade RAG systems (very common)
 - When scores are not comparable across models
 
-
+---
 
 ### 2. Weighted Sum (Linear Fusion)
 **Definition**: This method combines the raw similarity scores from different retrievers by assigning a weight (importance) to each source and summing them.
@@ -41,11 +38,15 @@ Doc2 > Doc3 > Doc1 ≈ Doc4
 *   **Example**: You might decide that semantic search is twice as important as keyword search.
     *   **Calculation**: $(0.7 \times \text{Vector Score}) + (0.3 \times \text{Keyword Score})$.
 
+---
+
 ### 3. Distribution-Based Score Fusion (DBSF)
 **Definition**: DBSF is a specialized score-based fusion that normalizes results by accounting for the specific statistical distribution of scores within each retriever's result set.
 
 *   **Explanation**: Standard normalization (like Min-Max) can be skewed by outliers. DBSF analyzes the mean and variance of the scores in each list to ensure that one retriever's "high" score truly represents high confidence relative to its own typical output before merging it with others.
 *   **Example**: If Retriever A typically returns scores between 0.1 and 0.2, and Retriever B returns 0.8 to 0.9, DBSF adjusts these ranges so a "0.2" from A is treated with equal significance to a "0.9" from B.
+
+---
 
 ### 4. Alpha Weighting ($\alpha$-weighting)
 **Definition**: This is a specific parameter-driven version of hybrid fusion where a single value, **Alpha ($\alpha$)**, controls the balance between two different retrieval methods.
