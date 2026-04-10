@@ -11,18 +11,17 @@ In Retrieval-Augmented Generation (RAG), **fusion methods** are techniques used 
 
 *   #### 📊 Example
 
-Retriever A: Doc1, Doc2, Doc3
+   * Retriever A: Doc1, Doc2, Doc3
+   * Retriever B: Doc3, Doc2, Doc4
+   
+   * RRF scores:
+      - Doc2 → appears high in both → high score  
+      - Doc3 → appears in both → strong  
+      - Doc1 → only in A → lower  
+      - Doc4 → only in B → lower  
 
-Retriever B: Doc3, Doc2, Doc4
-
-RRF scores:
-- Doc2 → appears high in both → high score  
-- Doc3 → appears in both → strong  
-- Doc1 → only in A → lower  
-- Doc4 → only in B → lower  
-
-👉 Final ranking:
-Doc2 > Doc3 > Doc1 ≈ Doc4
+   * 👉 Final ranking:
+      - Doc2 > Doc3 > Doc1 ≈ Doc4
 
 #### 🧠 Usage
 - Hybrid search (BM25 + embeddings)
@@ -38,6 +37,13 @@ Doc2 > Doc3 > Doc1 ≈ Doc4
 *   **Example**: You might decide that semantic search is twice as important as keyword search.
     *   **Calculation**: $(0.7 \times \text{Vector Score}) + (0.3 \times \text{Keyword Score})$.
 
+* ### 📊 Example
+
+   * BM25 score: Doc1: 0.8, Doc2: 0.6
+   * Embedding score: Doc1: 0.5, Doc2: 0.9
+   * Weights: BM25 = 0.6, Embedding = 0.4
+   * Final: Doc1 = 0.60.8 + 0.40.5 = 0.68 , Doc2 = 0.60.6 + 0.40.9 = 0.72
+   * 👉 Doc2 wins
 ---
 
 ### 3. Distribution-Based Score Fusion (DBSF)
