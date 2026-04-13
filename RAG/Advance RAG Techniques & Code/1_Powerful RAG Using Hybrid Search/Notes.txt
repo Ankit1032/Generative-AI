@@ -1,0 +1,26 @@
+#### What You Will Learn…
+
+1. What is keyword search  
+2. What is vector search  
+3. Ensemble Solution  
+4. Combine solution for better retrieval  
+5. Solution using chromadb  
+6. Solution using weaviate  
+7. Loading quantize model from Hugging Face  
+8. Reranking after retrieval  
+
+
+#### RAG Architecture
+1. [INGESTION]
+Data → Chunking → Embedding → Database
+
+2. [RETRIEVAL]
+User Query → Embedding → Similarity Search → Database
+            → Ranked Results → Context (Top K) → LLM → Final Answer
+
+#### Different types of retrieval techniques
+1. Naive retrieval + Keyword Search (Hybrid search)
+2. Sentence window retrieval
+3. Self Query retrieval
+4. Parent Document retrieval
+5. HyDE
